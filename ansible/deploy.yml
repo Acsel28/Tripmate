@@ -7,7 +7,22 @@
         cmd: docker-compose --version
         chdir: "{{ playbook_dir }}/.."
 
+    - name: Remove legacy TripMate app container if present
+      ansible.builtin.command:
+        cmd: docker rm -f tripmate-app
+      ignore_errors: true
+
+    - name: Remove compose-managed TripMate app container if present
+      ansible.builtin.command:
+        cmd: docker rm -f tripmate-tripmate-app-1
+      ignore_errors: true
+
+    - name: Remove Jenkins-workspace TripMate app container if present
+      ansible.builtin.command:
+        cmd: docker rm -f tripmate-pipeline-tripmate-app-1
+      ignore_errors: true
+
     - name: Build and start TripMate services
       ansible.builtin.command:
-        cmd: docker-compose up -d --build tripmate-app
+        cmd: docker-compose -p tripmate up -d --build --force-recreate tripmate-app
         chdir: "{{ playbook_dir }}/.."
