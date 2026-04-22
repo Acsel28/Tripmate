@@ -5,6 +5,7 @@ pipeline {
         IMAGE_NAME = 'tripmate-app'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         SONARQUBE_SERVER = 'sonarqube-server'
+        SONAR_SCANNER_TOOL = 'sonar-scanner'
     }
 
     stages {
@@ -19,11 +20,19 @@ pipeline {
                 dir('tripmate') {
                     script {
                         if (isUnix()) {
-                            sh 'python3 -m pip install --upgrade pip'
-                            sh 'pip3 install -r requirements.txt'
+                            sh '''
+                                python3 -m venv .venv
+                                . .venv/bin/activate
+                                python -m pip install --upgrade pip
+                                pip install -r requirements.txt
+                            '''
                         } else {
-                            bat 'python -m pip install --upgrade pip'
-                            bat 'pip install -r requirements.txt'
+                            bat '''
+                                python -m venv .venv
+                                call .venv\\Scripts\\activate
+                                python -m pip install --upgrade pip
+                                pip install -r requirements.txt
+                            '''
                         }
                     }
                 }
@@ -35,9 +44,15 @@ pipeline {
                 dir('tripmate') {
                     script {
                         if (isUnix()) {
-                            sh 'pytest --cov=. --cov-report=xml --cov-report=term'
+                            sh '''
+                                . .venv/bin/activate
+                                pytest --cov=. --cov-report=xml --cov-report=term
+                            '''
                         } else {
-                            bat 'pytest --cov=. --cov-report=xml --cov-report=term'
+                            bat '''
+                                call .venv\\Scripts\\activate
+                                pytest --cov=. --cov-report=xml --cov-report=term
+                            '''
                         }
                     }
                 }
@@ -49,10 +64,21 @@ pipeline {
                 dir('tripmate') {
                     withSonarQubeEnv("${SONARQUBE_SERVER}") {
                         script {
+                            def scannerHome = tool "${SONAR_SCANNER_TOOL}"
                             if (isUnix()) {
-                                sh 'sonar-scanner'
+                                withEnv(["PATH+SONAR=${scannerHome}/bin"]) {
+                                    sh '''
+                                        . .venv/bin/activate
+                                        sonar-scanner
+                                    '''
+                                }
                             } else {
-                                bat 'sonar-scanner'
+                                withEnv(["PATH+SONAR=${scannerHome}\\bin"]) {
+                                    bat '''
+                                        call .venv\\Scripts\\activate
+                                        sonar-scanner
+                                    '''
+                                }
                             }
                         }
                     }
