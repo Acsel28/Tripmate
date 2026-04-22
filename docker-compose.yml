@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: tripmate-app
     ports:
       - "8000:8000"
     environment:
@@ -18,7 +17,6 @@ services:
 
   sonarqube:
     image: sonarqube:lts-community
-    container_name: tripmate-sonarqube
     ports:
       - "9000:9000"
     environment:
@@ -32,7 +30,6 @@ services:
     build:
       context: .
       dockerfile: jenkins/Dockerfile
-    container_name: tripmate-jenkins
     user: root
     ports:
       - "8080:8080"

@@ -9,5 +9,5 @@
 
     - name: Build and start TripMate services
       ansible.builtin.command:
-        cmd: docker-compose up -d --build
+        cmd: docker-compose up -d --build tripmate-app
         chdir: "{{ playbook_dir }}/.."
