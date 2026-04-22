@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Bookings - TripMate{% endblock %}
+
+{% block content %}
+<h1>My Bookings</h1>
+
+<div class="booking-search">
+    <h2>Search Flights</h2>
+    <div class="search-results">
+        {% for flight in flights %}
+            <div class="card">
+                <h3>{{ flight.name }}</h3>
+                <p>Departure: {{ flight.departure }} | Arrival: {{ flight.arrival }}</p>
+                <p><strong>Price: ${{ flight.price }}</strong></p>
+                <form method="POST" action="{{ url_for('booking.book') }}">
+                    <input type="hidden" name="item_type" value="flight">
+                    <input type="hidden" name="item_name" value="{{ flight.name }}">
+                    <input type="hidden" name="price" value="{{ flight.price }}">
+                    <div class="form-group">
+                        <label for="date">Travel Date:</label>
+                        <input type="date" name="date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Book</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <h2>Search Hotels</h2>
+    <div class="search-results">
+        {% for hotel in hotels %}
+            <div class="card">
+                <h3>{{ hotel.name }}</h3>
+                <p>Rating: {{ hotel.rating }} stars</p>
+                <p><strong>Price: ${{ hotel.price }}/night</strong></p>
+                <form method="POST" action="{{ url_for('booking.book') }}">
+                    <input type="hidden" name="item_type" value="hotel">
+                    <input type="hidden" name="item_name" value="{{ hotel.name }}">
+                    <input type="hidden" name="price" value="{{ hotel.price }}">
+                    <div class="form-group">
+                        <label for="date">Check-in Date:</label>
+                        <input type="date" name="date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Book</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<h2>My Bookings</h2>
+<div class="booking-list">
+    {% for booking in bookings %}
+        <div class="card">
+            <h3>{{ booking.item_name }}</h3>
+            <p><strong>Type:</strong> {{ booking.item_type }}</p>
+            <p><strong>Date:</strong> {{ booking.date }}</p>
+            <p><strong>Price:</strong> ${{ booking.price }}</p>
+            <p><strong>Status:</strong> {{ booking.status }}</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

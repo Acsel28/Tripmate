@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  tripmate-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tripmate-app
+    ports:
+      - "8000:8000"
+    environment:
+      TRIPMATE_SECRET_KEY: tripmate-production-secret
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+      PORT: 8000
+    volumes:
+      - tripmate-data:/app/data
+    command: >
+      sh -c "python init_db.py &&
+      gunicorn --bind 0.0.0.0:8000 app:app"
+
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: tripmate-sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: jenkins/Dockerfile
+    container_name: tripmate-jenkins
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+
+volumes:
+  tripmate-data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  jenkins_home:

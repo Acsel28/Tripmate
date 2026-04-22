@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - TripMate{% endblock %}
+
+{% block content %}
+<h1>Travel Reports</h1>
+
+<div class="report-section">
+    <h2>Itinerary Summary</h2>
+    {% for data in itinerary_data %}
+        <div class="card">
+            <h3>{{ data.itinerary.title }}</h3>
+            <p><strong>Created:</strong> {{ data.itinerary.created_at }}</p>
+            <h4>Destinations:</h4>
+            <ul>
+            {% for dest in data.destinations %}
+                <li>{{ dest.location }} - {{ dest.date }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="report-section">
+    <h2>Booking Summary</h2>
+    <p><strong>Total Bookings:</strong> {{ bookings|length }}</p>
+    <p><strong>Total Cost:</strong> ${{ total_booking_cost }}</p>
+    {% for booking in bookings %}
+        <div class="card">
+            <h3>{{ booking.item_name }}</h3>
+            <p><strong>Type:</strong> {{ booking.item_type }}</p>
+            <p><strong>Date:</strong> {{ booking.date }}</p>
+            <p><strong>Price:</strong> ${{ booking.price }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="report-section">
+    <h2>Budget Summary</h2>
+    {% if budget %}
+        <div class="card">
+            <p><strong>Total Budget:</strong> ${{ budget.total_budget }}</p>
+            <p><strong>Total Expenses:</strong> ${{ total_expenses }}</p>
+            <p><strong>Remaining:</strong> ${{ remaining }}</p>
+            
+            <h4>Expense Breakdown:</h4>
+            {% for expense in expenses %}
+                <p>{{ expense.category }}: ${{ expense.amount }} ({{ expense.date }})</p>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No budget data available</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TripMate{% endblock %}
+
+{% block content %}
+<h1>Welcome, {{ user_name }}!</h1>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <h3>Recent Itineraries</h3>
+        {% if itineraries %}
+            <ul>
+            {% for itinerary in itineraries %}
+                <li>
+                    <a href="{{ url_for('itinerary.view', itinerary_id=itinerary.id) }}">
+                        {{ itinerary.title }}
+                    </a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No itineraries yet</p>
+        {% endif %}
+        <a href="{{ url_for('itinerary.index') }}" class="btn btn-secondary">View All</a>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3>Recent Bookings</h3>
+        {% if bookings %}
+            <ul>
+            {% for booking in bookings %}
+                <li>{{ booking.item_name }} - ${{ booking.price }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No bookings yet</p>
+        {% endif %}
+        <a href="{{ url_for('booking.index') }}" class="btn btn-secondary">View All</a>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3>Budget Summary</h3>
+        {% if budget %}
+            <p>Total Budget: ${{ budget.total_budget }}</p>
+            <p>Spent: ${{ total_expenses }}</p>
+            <p>Remaining: ${{ budget.total_budget - total_expenses }}</p>
+        {% else %}
+            <p>No budget set</p>
+        {% endif %}
+        <a href="{{ url_for('budget.index') }}" class="btn btn-secondary">Manage Budget</a>
+    </div>
+</div>
+{% endblock %}
