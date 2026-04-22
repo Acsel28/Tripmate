@@ -4,10 +4,10 @@
   tasks:
     - name: Show Docker Compose version
       ansible.builtin.command:
-        cmd: docker compose version
+        cmd: docker-compose --version
         chdir: "{{ playbook_dir }}/.."
 
     - name: Build and start TripMate services
       ansible.builtin.command:
-        cmd: docker compose up -d --build
+        cmd: docker-compose up -d --build
         chdir: "{{ playbook_dir }}/.."
