@@ -69,14 +69,14 @@ pipeline {
                                 withEnv(["PATH+SONAR=${scannerHome}/bin"]) {
                                     sh '''
                                         . .venv/bin/activate
-                                        sonar-scanner
+                                        sonar-scanner -Dproject.settings=../sonar-project.properties -Dsonar.projectBaseDir=.
                                     '''
                                 }
                             } else {
                                 withEnv(["PATH+SONAR=${scannerHome}\\bin"]) {
                                     bat '''
                                         call .venv\\Scripts\\activate
-                                        sonar-scanner
+                                        sonar-scanner -Dproject.settings=..\\sonar-project.properties -Dsonar.projectBaseDir=.
                                     '''
                                 }
                             }
