@@ -13,12 +13,16 @@ This project demonstrates a web application integrated with a DevOps workflow us
 
 ## Architecture you can explain
 
-1. The TripMate app is a Flask monolith with modules for authentication, itinerary, booking, budget, and reports.
-2. Jenkins acts as the CI/CD controller.
-3. Pytest validates important user flows before deployment.
-4. SonarQube checks code quality and coverage.
-5. Docker packages the application consistently.
-6. Ansible runs deployment automation after the build succeeds.
+1. The TripMate web app is now a gateway service that keeps the same pages and user flows.
+2. Authentication logic runs in `auth-service`.
+3. Itinerary and booking logic run in `travel-service`.
+4. Budget and expense logic run in `finance-service`.
+5. Services are containerized and orchestrated together with Docker Compose.
+6. The shared SQLite volume is used for this lab implementation to keep behavior unchanged while showing microservice separation.
+7. Jenkins acts as the CI/CD controller.
+8. Pytest validates important user flows before deployment.
+9. SonarQube checks code quality and coverage.
+10. Ansible runs deployment automation after the build succeeds.
 
 ## Before the demo
 
@@ -138,6 +142,10 @@ docker compose ps
 You can say:
 
 `This project uses Flask as the application layer. Pytest is used as the mandatory testing tool in the CI pipeline. Jenkins is used to automate the CI/CD stages. SonarQube is integrated to check code quality and test coverage. Docker is used to containerize the application and DevOps services. Ansible is used in the final stage to automate deployment using Docker Compose.`
+
+You can also add:
+
+`To satisfy microservice expectations, the app is split into gateway, authentication, travel, and finance services while preserving the same end-user functionality.`
 
 ## Screenshots you should capture
 

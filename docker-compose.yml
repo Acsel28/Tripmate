@@ -5,15 +5,61 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    depends_on:
+      - auth-service
+      - travel-service
+      - finance-service
     environment:
       TRIPMATE_SECRET_KEY: tripmate-production-secret
       TRIPMATE_DB_PATH: /app/data/tripmate.db
+      AUTH_SERVICE_URL: http://auth-service:8001
+      TRAVEL_SERVICE_URL: http://travel-service:8002
+      FINANCE_SERVICE_URL: http://finance-service:8003
       PORT: 8000
     volumes:
       - tripmate-data:/app/data
     command: >
       sh -c "python init_db.py &&
-      gunicorn --bind 0.0.0.0:8000 app:app"
+      gunicorn --bind 0.0.0.0:8000 gateway_app:app"
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+      PORT: 8001
+    volumes:
+      - tripmate-data:/app/data
+    command: >
+      sh -c "python init_db.py &&
+      gunicorn --bind 0.0.0.0:8001 services.auth_service:app"
+
+  travel-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+      PORT: 8002
+    volumes:
+      - tripmate-data:/app/data
+    command: >
+      sh -c "python init_db.py &&
+      gunicorn --bind 0.0.0.0:8002 services.travel_service:app"
+
+  finance-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+      PORT: 8003
+    volumes:
+      - tripmate-data:/app/data
+    command: >
+      sh -c "python init_db.py &&
+      gunicorn --bind 0.0.0.0:8003 services.finance_service:app"
 
   sonarqube:
     image: sonarqube:lts-community

@@ -50,6 +50,17 @@ Jenkins URL: `http://localhost:8080`
 
 SonarQube URL: `http://localhost:9000`
 
+## Microservices architecture in this version
+
+The Docker deployment now runs TripMate as a small microservices setup while keeping the same UI and user flows:
+
+1. `tripmate-app`: gateway web app serving templates and session-based login state
+2. `auth-service`: user registration and login validation APIs
+3. `travel-service`: itinerary, destination, and booking APIs
+4. `finance-service`: budget and expense APIs
+
+All services use the same SQLite database volume for this academic project, which keeps behavior consistent with the previous monolith while demonstrating service separation.
+
 ## How the pipeline works
 
 1. Jenkins checks out the source code.
@@ -99,15 +110,10 @@ python app.py
 5. Docker containers running with `docker compose ps`
 6. Ansible playbook output showing deployment success
 
-## Microservices that can be split from this project later
+## Future microservices expansion options
 
-1. Authentication service
-2. Itinerary management service
-3. Booking service
-4. Budget and expense service
-5. Report generation service
-6. Notification service for booking or budget alerts
-7. API gateway service
-8. User profile service
-9. Payment service if real bookings are added
-10. Search and recommendation service for destinations or hotels
+1. Report generation service
+2. Notification service for booking or budget alerts
+3. User profile service
+4. Payment service if real bookings are added
+5. Search and recommendation service for destinations or hotels

@@ -4,7 +4,16 @@
 
 TripMate: Travel Planning Web Application with CI/CD Pipeline
 
-## 2. Technologies Used
+## 2. Group Member Details (2 Members)
+
+1. Member 1 Name: ____________________
+	Roll Number: ____________________
+	Contribution: ____________________
+2. Member 2 Name: ____________________
+	Roll Number: ____________________
+	Contribution: ____________________
+
+## 3. Technologies Used
 
 1. Flask
 2. Docker
@@ -13,7 +22,7 @@ TripMate: Travel Planning Web Application with CI/CD Pipeline
 5. Ansible
 6. Pytest
 
-## 3. Project Modules
+## 4. Project Modules
 
 1. User Authentication
 2. Itinerary Management
@@ -21,7 +30,7 @@ TripMate: Travel Planning Web Application with CI/CD Pipeline
 4. Budget Tracking
 5. Travel Reporting
 
-## 4. Testing Approach
+## 5. Testing Approach
 
 Automated testing is implemented using `pytest`.
 The current test suite validates:
@@ -32,7 +41,7 @@ The current test suite validates:
 4. Budget creation flow
 5. Expense creation validation
 
-## 5. CI/CD Pipeline Explanation
+## 6. CI/CD Pipeline Explanation
 
 1. Developer pushes code to repository.
 2. Jenkins triggers the pipeline using `Jenkinsfile`.
@@ -43,7 +52,7 @@ The current test suite validates:
 7. Ansible runs deployment steps using Docker Compose.
 8. Updated services are available after successful deployment.
 
-## 6. Screenshots to Attach
+## 7. Screenshots to Attach
 
 1. Application login/dashboard page
 2. Pytest execution result
@@ -52,6 +61,6 @@ The current test suite validates:
 5. Docker containers list
 6. Ansible deployment output
 
-## 7. Conclusion
+## 8. Conclusion
 
 The TripMate application was enhanced with a CI/CD-enabled workflow using testing, code quality analysis, containerization, and automated deployment. This makes the project easier to validate, package, deploy, and demonstrate in an academic setting.
