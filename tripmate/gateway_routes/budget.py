@@ -72,7 +72,7 @@ def set_budget():
 @login_required
 def add_expense():
     try:
-        finance_post(
+        payload = finance_post(
             "/api/expenses",
             {
                 "user_id": session["user_id"],
@@ -82,7 +82,11 @@ def add_expense():
                 "description": request.form.get("description", ""),
             },
         )
-        flash("Expense added successfully")
+        budget_state = payload.get("budget_state", {})
+        if budget_state.get("overspent"):
+            flash("Alert: Budget exceeded. Please review your expenses.")
+        else:
+            flash("Expense added and budget recalculated successfully")
     except ServiceError as exc:
         flash(str(exc))
 

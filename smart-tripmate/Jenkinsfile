@@ -1,0 +1,47 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Clone Repository') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Install Dependencies') {
+      steps {
+        sh 'python -m pip install --upgrade pip'
+        sh 'pip install -r planning-service/requirements.txt'
+      }
+    }
+
+    stage('Run Pytest') {
+      steps {
+        dir('planning-service') {
+          sh 'pytest -q'
+        }
+      }
+    }
+
+    stage('Build Docker Images') {
+      steps {
+        sh 'docker build -t tripmate-api-gateway:latest api-gateway'
+        sh 'docker build -t tripmate-auth-service:latest auth-service'
+        sh 'docker build -t tripmate-trip-service:latest trip-service'
+        sh 'docker build -t tripmate-planning-service:latest planning-service'
+        sh 'docker build -t tripmate-booking-service:latest booking-service'
+        sh 'docker build -t tripmate-expense-service:latest expense-service'
+        sh 'docker build -t tripmate-budget-service:latest budget-service'
+        sh 'docker build -t tripmate-notification-service:latest notification-service'
+        sh 'docker build -t tripmate-frontend:latest frontend'
+      }
+    }
+
+    stage('Deploy to Kubernetes') {
+      steps {
+        sh 'kubectl apply -f k8s/deployment.yaml'
+        sh 'kubectl apply -f k8s/service.yaml'
+      }
+    }
+  }
+}

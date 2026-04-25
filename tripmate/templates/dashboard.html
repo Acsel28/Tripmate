@@ -5,6 +5,41 @@
 {% block content %}
 <h1>Welcome, {{ user_name }}!</h1>
 
+<div class="dashboard-kpis" id="dashboard-kpis">
+    <div class="kpi-card">
+        <h4>Total Trips</h4>
+        <p id="kpi-total-trips">{{ total_trips }}</p>
+    </div>
+    <div class="kpi-card">
+        <h4>Total Trip Cost</h4>
+        <p id="kpi-total-trip-cost">${{ total_trip_cost }}</p>
+    </div>
+    <div class="kpi-card">
+        <h4>Total Expenses</h4>
+        <p id="kpi-total-expenses">${{ total_expenses }}</p>
+    </div>
+    <div class="kpi-card">
+        <h4>Remaining Budget</h4>
+        <p id="kpi-remaining-budget">{% if has_budget %}${{ remaining_budget }}{% else %}Not set{% endif %}</p>
+    </div>
+</div>
+
+<div class="dashboard-alerts">
+    <h3>Recent Alerts</h3>
+    <div id="notification-list">
+        {% if notifications %}
+            {% for note in notifications %}
+                <div class="notification-item notification-{{ note.severity }}">
+                    <strong>{{ note.title }}</strong>
+                    <p>{{ note.message }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p id="no-notification-text">No alerts yet.</p>
+        {% endif %}
+    </div>
+</div>
+
 <div class="dashboard-grid">
     <div class="dashboard-card">
         <h3>Recent Itineraries</h3>
@@ -40,10 +75,9 @@
     
     <div class="dashboard-card">
         <h3>Budget Summary</h3>
-        {% if budget %}
-            <p>Total Budget: ${{ budget.total_budget }}</p>
+        {% if has_budget %}
             <p>Spent: ${{ total_expenses }}</p>
-            <p>Remaining: ${{ budget.total_budget - total_expenses }}</p>
+            <p>Remaining: ${{ remaining_budget }}</p>
         {% else %}
             <p>No budget set</p>
         {% endif %}

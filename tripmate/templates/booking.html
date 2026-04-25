@@ -58,6 +58,11 @@
             <p><strong>Date:</strong> {{ booking.date }}</p>
             <p><strong>Price:</strong> ${{ booking.price }}</p>
             <p><strong>Status:</strong> {{ booking.status }}</p>
+            {% if booking.status == 'confirmed' %}
+                <form method="POST" action="{{ url_for('booking.cancel', booking_id=booking.id) }}">
+                    <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                </form>
+            {% endif %}
         </div>
     {% endfor %}
 </div>

@@ -1,10 +1,40 @@
-from flask import Flask, jsonify, request
+import os
+
+from flask import Flask, jsonify, redirect, request
 
 from db import get_db
+from gateway_routes import auth as auth_routes
 from models.user import User
 from utils.password import hash_password, verify_password
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="../templates", static_folder="../static")
+app.secret_key = os.environ.get("TRIPMATE_SECRET_KEY", "tripmate-secret-key-change-in-production")
+
+PUBLIC_GATEWAY_URL = os.environ.get("PUBLIC_GATEWAY_URL", "http://localhost:8000")
+PUBLIC_AUTH_URL = os.environ.get("PUBLIC_AUTH_URL", "http://localhost:8001")
+PUBLIC_TRAVEL_URL = os.environ.get("PUBLIC_TRAVEL_URL", "http://localhost:8002")
+PUBLIC_FINANCE_URL = os.environ.get("PUBLIC_FINANCE_URL", "http://localhost:8003")
+
+app.register_blueprint(auth_routes.bp)
+
+
+@app.context_processor
+def inject_nav_urls():
+    return {
+        "nav_urls": {
+            "dashboard": f"{PUBLIC_GATEWAY_URL}/dashboard",
+            "itinerary": f"{PUBLIC_TRAVEL_URL}/itinerary/",
+            "booking": f"{PUBLIC_TRAVEL_URL}/booking/",
+            "budget": f"{PUBLIC_FINANCE_URL}/budget/",
+            "reports": f"{PUBLIC_FINANCE_URL}/reports/",
+            "logout": f"{PUBLIC_AUTH_URL}/auth/logout",
+        }
+    }
+
+
+@app.get("/")
+def root():
+    return redirect("/auth/login")
 
 
 @app.get("/health")
@@ -54,4 +84,4 @@ def login():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8001)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "8001")))

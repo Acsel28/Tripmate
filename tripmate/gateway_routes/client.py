@@ -5,6 +5,7 @@ import requests
 AUTH_SERVICE_URL = os.environ.get("AUTH_SERVICE_URL", "http://localhost:8001")
 TRAVEL_SERVICE_URL = os.environ.get("TRAVEL_SERVICE_URL", "http://localhost:8002")
 FINANCE_SERVICE_URL = os.environ.get("FINANCE_SERVICE_URL", "http://localhost:8003")
+NOTIFICATION_SERVICE_URL = os.environ.get("NOTIFICATION_SERVICE_URL", "http://localhost:8004")
 REQUEST_TIMEOUT_SECONDS = float(os.environ.get("INTERNAL_API_TIMEOUT_SECONDS", "5"))
 
 
@@ -60,3 +61,11 @@ def finance_get(path, params=None):
 
 def finance_post(path, payload):
     return _request("POST", FINANCE_SERVICE_URL, path, json=payload)
+
+
+def notification_get(path, params=None):
+    return _request("GET", NOTIFICATION_SERVICE_URL, path, params=params)
+
+
+def notification_post(path, payload):
+    return _request("POST", NOTIFICATION_SERVICE_URL, path, json=payload)

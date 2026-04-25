@@ -1,0 +1,74 @@
+version: '3.9'
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:5001
+      TRIP_SERVICE_URL: http://trip-service:5003
+      PLANNING_SERVICE_URL: http://planning-service:5004
+      BUDGET_SERVICE_URL: http://budget-service:5007
+      NOTIFICATION_SERVICE_URL: http://notification-service:5008
+    depends_on:
+      - auth-service
+      - trip-service
+      - planning-service
+      - budget-service
+      - notification-service
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "5001:5001"
+
+  trip-service:
+    build: ./trip-service
+    ports:
+      - "5003:5003"
+
+  booking-service:
+    build: ./booking-service
+    ports:
+      - "5005:5005"
+
+  planning-service:
+    build: ./planning-service
+    ports:
+      - "5004:5004"
+    environment:
+      BOOKING_SERVICE_URL: http://booking-service:5005
+      BUDGET_SERVICE_URL: http://budget-service:5007
+    depends_on:
+      - booking-service
+      - budget-service
+
+  expense-service:
+    build: ./expense-service
+    ports:
+      - "5006:5006"
+    environment:
+      BUDGET_SERVICE_URL: http://budget-service:5007
+
+  budget-service:
+    build: ./budget-service
+    ports:
+      - "5007:5007"
+    environment:
+      NOTIFICATION_SERVICE_URL: http://notification-service:5008
+    depends_on:
+      - notification-service
+
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "5008:5008"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_BASE_URL: http://localhost:5000
+    depends_on:
+      - api-gateway

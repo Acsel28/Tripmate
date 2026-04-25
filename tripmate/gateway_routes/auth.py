@@ -1,8 +1,17 @@
+import os
+
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from gateway_routes.client import ServiceError, auth_post
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+
+def dashboard_redirect_url():
+    public_gateway_url = os.environ.get("PUBLIC_GATEWAY_URL", "").rstrip("/")
+    if public_gateway_url:
+        return f"{public_gateway_url}/dashboard"
+    return url_for("dashboard")
 
 
 @bp.route("/register", methods=["GET", "POST"])
@@ -39,7 +48,7 @@ def login():
             )
             session["user_id"] = payload["id"]
             session["user_name"] = payload["name"]
-            return redirect(url_for("dashboard"))
+            return redirect(dashboard_redirect_url())
         except ServiceError as exc:
             flash(str(exc))
 

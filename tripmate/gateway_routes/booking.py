@@ -54,7 +54,7 @@ def index():
 @login_required
 def book():
     try:
-        travel_post(
+        payload = travel_post(
             "/api/bookings",
             {
                 "user_id": session["user_id"],
@@ -64,7 +64,21 @@ def book():
                 "price": float(request.form["price"]),
             },
         )
-        flash("Booking confirmed successfully")
+        booking = payload.get("booking", {})
+        flash(f"Booking status: {booking.get('status', 'confirmed').title()}")
+    except ServiceError as exc:
+        flash(str(exc))
+
+    return redirect(url_for("booking.index"))
+
+
+@bp.route("/<int:booking_id>/cancel", methods=["POST"])
+@login_required
+def cancel(booking_id):
+    try:
+        payload = travel_post(f"/api/bookings/{booking_id}/status", {"status": "cancelled"})
+        booking = payload.get("booking", {})
+        flash(f"Booking status updated to {booking.get('status', 'cancelled').title()}")
     except ServiceError as exc:
         flash(str(exc))
 

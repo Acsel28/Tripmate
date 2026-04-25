@@ -1,0 +1,210 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: tripmate-api-gateway:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: AUTH_SERVICE_URL
+          value: http://auth-service:5001
+        - name: TRIP_SERVICE_URL
+          value: http://trip-service:5003
+        - name: PLANNING_SERVICE_URL
+          value: http://planning-service:5004
+        - name: BUDGET_SERVICE_URL
+          value: http://budget-service:5007
+        - name: NOTIFICATION_SERVICE_URL
+          value: http://notification-service:5008
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: tripmate-auth-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trip-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trip-service
+  template:
+    metadata:
+      labels:
+        app: trip-service
+    spec:
+      containers:
+      - name: trip-service
+        image: tripmate-trip-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5003
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+      - name: booking-service
+        image: tripmate-booking-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5005
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planning-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: planning-service
+  template:
+    metadata:
+      labels:
+        app: planning-service
+    spec:
+      containers:
+      - name: planning-service
+        image: tripmate-planning-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5004
+        env:
+        - name: BOOKING_SERVICE_URL
+          value: http://booking-service:5005
+        - name: BUDGET_SERVICE_URL
+          value: http://budget-service:5007
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expense-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expense-service
+  template:
+    metadata:
+      labels:
+        app: expense-service
+    spec:
+      containers:
+      - name: expense-service
+        image: tripmate-expense-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5006
+        env:
+        - name: BUDGET_SERVICE_URL
+          value: http://budget-service:5007
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: budget-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: budget-service
+  template:
+    metadata:
+      labels:
+        app: budget-service
+    spec:
+      containers:
+      - name: budget-service
+        image: tripmate-budget-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5007
+        env:
+        - name: NOTIFICATION_SERVICE_URL
+          value: http://notification-service:5008
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: notification-service
+        image: tripmate-notification-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5008
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: tripmate-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000

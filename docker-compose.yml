@@ -9,12 +9,19 @@ services:
       - auth-service
       - travel-service
       - finance-service
+      - notification-service
     environment:
       TRIPMATE_SECRET_KEY: tripmate-production-secret
       TRIPMATE_DB_PATH: /app/data/tripmate.db
       AUTH_SERVICE_URL: http://auth-service:8001
       TRAVEL_SERVICE_URL: http://travel-service:8002
       FINANCE_SERVICE_URL: http://finance-service:8003
+      NOTIFICATION_SERVICE_URL: http://notification-service:8004
+      PUBLIC_GATEWAY_URL: http://localhost:8000
+      PUBLIC_AUTH_URL: http://localhost:8001
+      PUBLIC_TRAVEL_URL: http://localhost:8002
+      PUBLIC_FINANCE_URL: http://localhost:8003
+      PUBLIC_NOTIFICATION_URL: http://localhost:8004
       PORT: 8000
     volumes:
       - tripmate-data:/app/data
@@ -26,40 +33,91 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
     environment:
+      TRIPMATE_SECRET_KEY: tripmate-production-secret
       TRIPMATE_DB_PATH: /app/data/tripmate.db
+      AUTH_SERVICE_URL: http://auth-service:8001
+      TRAVEL_SERVICE_URL: http://travel-service:8002
+      FINANCE_SERVICE_URL: http://finance-service:8003
+      NOTIFICATION_SERVICE_URL: http://notification-service:8004
+      PUBLIC_GATEWAY_URL: http://localhost:8000
+      PUBLIC_AUTH_URL: http://localhost:8001
+      PUBLIC_TRAVEL_URL: http://localhost:8002
+      PUBLIC_FINANCE_URL: http://localhost:8003
+      PUBLIC_NOTIFICATION_URL: http://localhost:8004
       PORT: 8001
     volumes:
       - tripmate-data:/app/data
     command: >
       sh -c "python init_db.py &&
-      gunicorn --bind 0.0.0.0:8001 services.auth_service:app"
+      gunicorn --workers 3 --bind 0.0.0.0:8001 services.auth_service:app"
 
   travel-service:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
     environment:
+      TRIPMATE_SECRET_KEY: tripmate-production-secret
       TRIPMATE_DB_PATH: /app/data/tripmate.db
+      AUTH_SERVICE_URL: http://auth-service:8001
+      TRAVEL_SERVICE_URL: http://travel-service:8002
+      FINANCE_SERVICE_URL: http://finance-service:8003
+      NOTIFICATION_SERVICE_URL: http://notification-service:8004
+      PUBLIC_GATEWAY_URL: http://localhost:8000
+      PUBLIC_AUTH_URL: http://localhost:8001
+      PUBLIC_TRAVEL_URL: http://localhost:8002
+      PUBLIC_FINANCE_URL: http://localhost:8003
+      PUBLIC_NOTIFICATION_URL: http://localhost:8004
       PORT: 8002
     volumes:
       - tripmate-data:/app/data
     command: >
       sh -c "python init_db.py &&
-      gunicorn --bind 0.0.0.0:8002 services.travel_service:app"
+      gunicorn --workers 3 --bind 0.0.0.0:8002 services.travel_service:app"
 
   finance-service:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
     environment:
+      TRIPMATE_SECRET_KEY: tripmate-production-secret
       TRIPMATE_DB_PATH: /app/data/tripmate.db
+      AUTH_SERVICE_URL: http://auth-service:8001
+      TRAVEL_SERVICE_URL: http://travel-service:8002
+      FINANCE_SERVICE_URL: http://finance-service:8003
+      NOTIFICATION_SERVICE_URL: http://notification-service:8004
+      PUBLIC_GATEWAY_URL: http://localhost:8000
+      PUBLIC_AUTH_URL: http://localhost:8001
+      PUBLIC_TRAVEL_URL: http://localhost:8002
+      PUBLIC_FINANCE_URL: http://localhost:8003
+      PUBLIC_NOTIFICATION_URL: http://localhost:8004
       PORT: 8003
     volumes:
       - tripmate-data:/app/data
     command: >
       sh -c "python init_db.py &&
-      gunicorn --bind 0.0.0.0:8003 services.finance_service:app"
+      gunicorn --workers 3 --bind 0.0.0.0:8003 services.finance_service:app"
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+      PORT: 8004
+    volumes:
+      - tripmate-data:/app/data
+    command: >
+      sh -c "python init_db.py &&
+      gunicorn --workers 2 --bind 0.0.0.0:8004 services.notification_service:app"
 
   sonarqube:
     image: sonarqube:lts-community

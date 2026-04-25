@@ -7,17 +7,25 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    {% set nav = nav_urls if nav_urls is defined else {
+        'dashboard': '/dashboard',
+        'itinerary': '/itinerary/',
+        'booking': '/booking/',
+        'budget': '/budget/',
+        'reports': '/reports/',
+        'logout': '/auth/logout'
+    } %}
     {% if session.user_id %}
     <nav class="navbar">
         <div class="container">
-            <a href="{{ url_for('dashboard') }}" class="logo">TripMate</a>
+            <a href="{{ nav.dashboard }}" class="logo">TripMate</a>
             <ul class="nav-links">
-                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-                <li><a href="{{ url_for('itinerary.index') }}">Itineraries</a></li>
-                <li><a href="{{ url_for('booking.index') }}">Bookings</a></li>
-                <li><a href="{{ url_for('budget.index') }}">Budget</a></li>
-                <li><a href="{{ url_for('reports.index') }}">Reports</a></li>
-                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                <li><a href="{{ nav.dashboard }}">Dashboard</a></li>
+                <li><a href="{{ nav.itinerary }}">Itineraries</a></li>
+                <li><a href="{{ nav.booking }}">Bookings</a></li>
+                <li><a href="{{ nav.budget }}">Budget</a></li>
+                <li><a href="{{ nav.reports }}">Reports</a></li>
+                <li><a href="{{ nav.logout }}">Logout</a></li>
             </ul>
         </div>
     </nav>

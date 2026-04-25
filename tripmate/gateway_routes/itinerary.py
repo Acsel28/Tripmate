@@ -42,12 +42,16 @@ def index():
 @login_required
 def create():
     title = request.form["title"]
+    start_date = request.form["start_date"]
+    end_date = request.form["end_date"]
     try:
         travel_post(
             "/api/itineraries",
             {
                 "user_id": session["user_id"],
                 "title": title,
+                "start_date": start_date,
+                "end_date": end_date,
             },
         )
         flash("Itinerary created successfully")
@@ -74,15 +78,19 @@ def view(itinerary_id):
 @login_required
 def add_destination(itinerary_id):
     try:
-        travel_post(
+        payload = travel_post(
             f"/api/itineraries/{itinerary_id}/destinations",
             {
+                "user_id": session["user_id"],
                 "location": request.form["location"],
                 "date": request.form["date"],
                 "notes": request.form.get("notes", ""),
             },
         )
         flash("Destination added successfully")
+        recommendations = payload.get("recommendations", [])
+        if recommendations:
+            flash("Suggested activities: " + ", ".join(recommendations))
     except ServiceError as exc:
         flash(str(exc))
 
