@@ -1,0 +1,23 @@
+:root {
+  color-scheme: light;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(255, 122, 89, 0.22), transparent 28%),
+    radial-gradient(circle at top right, rgba(13, 148, 136, 0.18), transparent 24%),
+    linear-gradient(180deg, #fff8ef 0%, #fffdf9 100%);
+  min-height: 100vh;
+}
+
+.glass {
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(16, 33, 43, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 33, 43, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}

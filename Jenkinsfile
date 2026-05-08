@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'tripmate-app'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
         SONARQUBE_SERVER = 'sonarqube-server'
         SONAR_SCANNER_TOOL = 'sonar-scanner'
+        COMPOSE_PROJECT_NAME = 'tripmate'
     }
 
     stages {
@@ -39,7 +38,7 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Pytest') {
             steps {
                 dir('tripmate') {
                     script {
@@ -86,26 +85,66 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Images') {
             steps {
                 script {
+                    def buildCommand = 'docker compose -p tripmate build api-gateway frontend auth-service trip-service planning-service booking-service expense-service budget-service notification-service recommendation-service itinerary-service reporting-service'
                     if (isUnix()) {
-                        sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                        sh buildCommand
                     } else {
-                        bat "docker build -t %IMAGE_NAME%:%IMAGE_TAG% ."
+                        bat buildCommand
                     }
                 }
             }
         }
 
-        stage('Deploy With Ansible') {
+        stage('Deploy Docker Stack With Ansible') {
             steps {
                 script {
+                    def deployCommand = 'ansible-playbook ansible/deploy.yml -i ansible/inventory.ini'
                     if (isUnix()) {
-                        sh 'ansible-playbook ansible/deploy.yml -i ansible/inventory.ini'
+                        sh deployCommand
                     } else {
-                        bat 'ansible-playbook ansible/deploy.yml -i ansible/inventory.ini'
+                        bat deployCommand
                     }
+                }
+            }
+        }
+
+        stage('Verify Docker Stack Health') {
+            steps {
+                script {
+                    def healthCommand = '''
+                        docker compose -p tripmate ps
+                        curl -f http://localhost:8000/health
+                        curl -f http://localhost:5006/health
+                        curl -f http://localhost:9090/-/healthy
+                        curl -f http://localhost:3001/api/health
+                    '''
+                    if (isUnix()) {
+                        sh healthCommand
+                    } else {
+                        bat '''
+                            docker compose -p tripmate ps
+                            powershell -Command "Invoke-WebRequest http://localhost:8000/health -UseBasicParsing"
+                            powershell -Command "Invoke-WebRequest http://localhost:5006/health -UseBasicParsing"
+                            powershell -Command "Invoke-WebRequest http://localhost:9090/-/healthy -UseBasicParsing"
+                            powershell -Command "Invoke-WebRequest http://localhost:3001/api/health -UseBasicParsing"
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                def rollbackCommand = 'docker compose -p tripmate down'
+                if (isUnix()) {
+                    sh rollbackCommand
+                } else {
+                    bat rollbackCommand
                 }
             }
         }

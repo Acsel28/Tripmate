@@ -1,19 +1,282 @@
 services:
-  tripmate-app:
+  api-gateway:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      trip-service:
+        condition: service_healthy
+      planning-service:
+        condition: service_healthy
+      booking-service:
+        condition: service_healthy
+      expense-service:
+        condition: service_healthy
+      budget-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      recommendation-service:
+        condition: service_healthy
+      itinerary-service:
+        condition: service_healthy
+      reporting-service:
+        condition: service_healthy
     ports:
       - "8000:8000"
     environment:
       TRIPMATE_SECRET_KEY: tripmate-production-secret
+      AUTH_SERVICE_URL: http://auth-service:5001
+      ITINERARY_SERVICE_URL: http://itinerary-service:5002
+      BOOKING_SERVICE_URL: http://booking-service:5003
+      BUDGET_SERVICE_URL: http://budget-service:5004
+      REPORTING_SERVICE_URL: http://reporting-service:5005
+      PLANNING_SERVICE_URL: http://planning-service:5006
+      NOTIFICATION_SERVICE_URL: http://notification-service:5007
+      RECOMMENDATION_SERVICE_URL: http://recommendation-service:5008
+      TRIP_SERVICE_URL: http://trip-service:5009
+      EXPENSE_SERVICE_URL: http://expense-service:5010
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://127.0.0.1/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+      APP_MODULE: auth_service_app:app
       TRIPMATE_DB_PATH: /app/data/tripmate.db
-      PORT: 8000
     volumes:
       - tripmate-data:/app/data
-    command: >
-      sh -c "python init_db.py &&
-      gunicorn --bind 0.0.0.0:8000 app:app"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5001/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  itinerary-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5002:5002"
+    environment:
+      PORT: 5002
+      APP_MODULE: itinerary_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5002/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5003:5003"
+    environment:
+      PORT: 5003
+      APP_MODULE: booking_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5003/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  budget-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5004:5004"
+    environment:
+      PORT: 5004
+      APP_MODULE: budget_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5004/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  reporting-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5005:5005"
+    environment:
+      PORT: 5005
+      APP_MODULE: reporting_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5005/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  planning-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5006:5006"
+    environment:
+      PORT: 5006
+      APP_MODULE: planning_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    depends_on:
+      booking-service:
+        condition: service_healthy
+      budget-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5006/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5007:5007"
+    environment:
+      PORT: 5007
+      APP_MODULE: notification_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5007/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  recommendation-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5008:5008"
+    environment:
+      PORT: 5008
+      APP_MODULE: recommendation_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5008/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  trip-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5009:5009"
+    environment:
+      PORT: 5009
+      APP_MODULE: trip_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    depends_on:
+      recommendation-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5009/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
+
+  expense-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    ports:
+      - "5010:5010"
+    environment:
+      PORT: 5010
+      APP_MODULE: expense_service_app:app
+      TRIPMATE_DB_PATH: /app/data/tripmate.db
+    volumes:
+      - tripmate-data:/app/data
+    depends_on:
+      budget-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5010/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tripmate-net
 
   sonarqube:
     image: sonarqube:lts-community
@@ -25,6 +288,37 @@ services:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_logs:/opt/sonarqube/logs
       - sonarqube_extensions:/opt/sonarqube/extensions
+    networks:
+      - tripmate-net
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    networks:
+      - tripmate-net
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      prometheus:
+        condition: service_started
+    networks:
+      - tripmate-net
 
   jenkins:
     build:
@@ -39,6 +333,19 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+    depends_on:
+      sonarqube:
+        condition: service_started
+      prometheus:
+        condition: service_started
+      grafana:
+        condition: service_started
+    networks:
+      - tripmate-net
+
+networks:
+  tripmate-net:
+    driver: bridge
 
 volumes:
   tripmate-data:
@@ -46,3 +353,5 @@ volumes:
   sonarqube_logs:
   sonarqube_extensions:
   jenkins_home:
+  prometheus_data:
+  grafana_data:

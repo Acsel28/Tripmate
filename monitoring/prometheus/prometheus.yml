@@ -1,0 +1,48 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: api-gateway
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['api-gateway:8000']
+
+  - job_name: auth-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['auth-service:5001']
+
+  - job_name: trip-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['trip-service:5009']
+
+  - job_name: planning-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['planning-service:5006']
+
+  - job_name: booking-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['booking-service:5003']
+
+  - job_name: expense-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['expense-service:5010']
+
+  - job_name: budget-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['budget-service:5004']
+
+  - job_name: notification-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['notification-service:5007']
+
+  - job_name: recommendation-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['recommendation-service:5008']

@@ -1,28 +1,50 @@
-- name: Deploy TripMate with Docker Compose
+- name: Deploy TripMate with Docker Compose and Monitoring
   hosts: tripmate
   gather_facts: false
+  vars:
+    project_root: "{{ playbook_dir }}/.."
+    compose_services:
+      - api-gateway
+      - frontend
+      - auth-service
+      - trip-service
+      - planning-service
+      - booking-service
+      - expense-service
+      - budget-service
+      - notification-service
+      - recommendation-service
+      - itinerary-service
+      - reporting-service
+      - prometheus
+      - grafana
   tasks:
     - name: Show Docker Compose version
       ansible.builtin.command:
-        cmd: docker-compose --version
-        chdir: "{{ playbook_dir }}/.."
+        cmd: docker compose version
+        chdir: "{{ project_root }}"
 
-    - name: Remove legacy TripMate app container if present
+    - name: Build and start TripMate Docker stack
       ansible.builtin.command:
-        cmd: docker rm -f tripmate-app
-      ignore_errors: true
+        cmd: docker compose -p tripmate up -d --build --force-recreate {{ compose_services | join(' ') }}
+        chdir: "{{ project_root }}"
 
-    - name: Remove compose-managed TripMate app container if present
+    - name: Verify API gateway health
       ansible.builtin.command:
-        cmd: docker rm -f tripmate-tripmate-app-1
-      ignore_errors: true
+        cmd: curl -f http://localhost:8000/health
+        chdir: "{{ project_root }}"
 
-    - name: Remove Jenkins-workspace TripMate app container if present
+    - name: Verify planning service health
       ansible.builtin.command:
-        cmd: docker rm -f tripmate-pipeline-tripmate-app-1
-      ignore_errors: true
+        cmd: curl -f http://localhost:5006/health
+        chdir: "{{ project_root }}"
 
-    - name: Build and start TripMate services
+    - name: Verify Prometheus health
       ansible.builtin.command:
-        cmd: docker-compose -p tripmate up -d --build --force-recreate tripmate-app
-        chdir: "{{ playbook_dir }}/.."
+        cmd: curl -f http://localhost:9090/-/healthy
+        chdir: "{{ project_root }}"
+
+    - name: Verify Grafana health
+      ansible.builtin.command:
+        cmd: curl -f http://localhost:3001/api/health
+        chdir: "{{ project_root }}"

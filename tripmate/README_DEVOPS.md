@@ -1,113 +1,62 @@
-# TripMate CI/CD and DevOps Integration
+# TripMate Smart Travel Planning Platform
 
-This project now includes a baseline DevOps toolchain using:
+TripMate is now structured as a Docker-first travel optimization platform with Jenkins CI/CD, SonarQube quality checks, and Prometheus/Grafana monitoring built on top of the existing Flask microservices foundation.
 
-1. Flask for the web application
-2. Pytest for automated testing
-3. Docker for containerization
-4. Jenkins for CI/CD orchestration
-5. SonarQube for static code quality analysis
-6. Ansible for deployment automation
+## Current service map
 
-## Recommended integration order
+1. `frontend`
+2. `api-gateway`
+3. `auth-service`
+4. `trip-service`
+5. `planning-service`
+6. `booking-service`
+7. `expense-service`
+8. `budget-service`
+9. `notification-service`
+10. `recommendation-service`
+11. `itinerary-service`
+12. `reporting-service`
+13. `prometheus`
+14. `grafana`
 
-1. Put the project in a Git repository.
-2. Verify the app locally with `pytest`.
-3. Build the container with Docker.
-4. Start SonarQube and Jenkins using Docker Compose.
-5. Create a Jenkins pipeline job connected to your repository.
-6. Configure the SonarQube server in Jenkins with the name `sonarqube-server`.
-7. Run the pipeline so Jenkins tests, scans, builds, and deploys the app.
+## What changed
 
-## Jenkins setup notes
+1. Added a modern React dashboard frontend served as its own service.
+2. Added planning, trip, notification, recommendation, and expense microservices.
+3. Preserved the original Docker and Ansible integration and extended them.
+4. Added health checks, service networking, and new CI/CD flow in Jenkins.
+5. Replaced the active Minikube/Kubernetes workflow with Prometheus and Grafana monitoring.
+6. Added smarter planning logic for affordability, cheapest, fastest, and balanced trip modes.
 
-Install these Jenkins plugins:
+## Website workflow
 
-1. Pipeline
-2. Git
-3. SonarQube Scanner
-4. Docker Pipeline
-5. Ansible
+1. User registers or logs in.
+2. User enters source, destination, dates, travelers, budget, and activity level.
+3. Frontend can do an instant budget preview before any backend planning call.
+4. `trip-service` stores the trip and fetches destination advice from `recommendation-service`.
+5. `planning-service` fetches transport and hotel options from `booking-service`.
+6. `planning-service` computes `cheapest`, `fastest`, and `balanced` plans.
+7. Frontend highlights the recommended trip and lets the user choose one.
+8. User can add real expenses and `expense-service` updates the budget picture.
+9. `notification-service` warns the user when plans or expenses exceed budget.
 
-If you run Jenkins in Docker, also make sure the Jenkins environment has:
+## DevOps flow
 
-1. Python and pip
-2. Docker CLI access
-3. Ansible installed
-4. Sonar Scanner installed or configured as a Jenkins tool
+1. Jenkins checks out the latest Git code.
+2. Jenkins installs Python dependencies.
+3. Jenkins runs `pytest`.
+4. Jenkins runs SonarQube scanning.
+5. Jenkins builds Docker images for the application services.
+6. Jenkins runs the Ansible deployment entrypoint.
+7. Ansible refreshes Docker Compose.
+8. Jenkins verifies health of the app, Prometheus, and Grafana.
+9. Jenkins shuts the stack down on deployment failure.
 
-## How to run locally
+## Monitoring URLs
 
-From the repository root:
-
-```powershell
-docker compose up --build
-```
-
-Application URL: `http://localhost:8000`
-
-Jenkins URL: `http://localhost:8080`
-
-SonarQube URL: `http://localhost:9000`
-
-## How the pipeline works
-
-1. Jenkins checks out the source code.
-2. Jenkins installs Python dependencies from `tripmate/requirements.txt`.
-3. Jenkins runs `pytest` with coverage.
-4. Jenkins triggers SonarQube analysis using `sonar-project.properties`.
-5. Jenkins builds the Docker image.
-6. Jenkins calls Ansible to deploy the updated application using Docker Compose.
-
-## Commands for your report demo
-
-### Run tests
-
-```powershell
-cd tripmate
-pytest --cov=. --cov-report=xml --cov-report=term
-```
-
-### Start the full stack
-
-```powershell
-docker compose up -d --build
-```
-
-### Initialize a Git repository if you have not already
-
-```powershell
-git init
-git add .
-git commit -m "Initial TripMate CI/CD setup"
-```
-
-### Run the Flask app without Docker
-
-```powershell
-cd tripmate
-python init_db.py
-python app.py
-```
-
-## Suggested screenshots for submission
-
-1. Home or login page of TripMate running in browser
-2. Jenkins pipeline stage view showing successful build
-3. SonarQube dashboard showing project analysis
-4. Terminal or Jenkins console showing `pytest` execution
-5. Docker containers running with `docker compose ps`
-6. Ansible playbook output showing deployment success
-
-## Microservices that can be split from this project later
-
-1. Authentication service
-2. Itinerary management service
-3. Booking service
-4. Budget and expense service
-5. Report generation service
-6. Notification service for booking or budget alerts
-7. API gateway service
-8. User profile service
-9. Payment service if real bookings are added
-10. Search and recommendation service for destinations or hotels
+1. Frontend: `http://localhost:3000`
+2. API gateway: `http://localhost:8000`
+3. Jenkins: `http://localhost:8080`
+4. SonarQube: `http://localhost:9000`
+5. Prometheus: `http://localhost:9090`
+6. Grafana: `http://localhost:3001`
